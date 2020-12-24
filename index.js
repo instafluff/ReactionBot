@@ -13,6 +13,17 @@ const dbs = {
   db: new LocaleDb({ path: 'db.json' }),
 };
 
+const lookForEmpty = (v) => {
+  if (typeof v !== 'object') return v;
+  return Object.fromEntries(
+    Object.entries(v)
+      .filter(([, v1]) => (typeof v1 !== 'object' || Object.keys(v1).length !== 0))
+      .map(([i1, v1]) => [i1, lookForEmpty(v1)]),
+  );
+};
+
+dbs.db.value = lookForEmpty(dbs.db.value);
+
 let commands;
 
 client.on('ready', async () => {

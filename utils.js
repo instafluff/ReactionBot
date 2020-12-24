@@ -10,4 +10,10 @@ module.exports = {
     };
     return `#${f(0)}${f(8)}${f(4)}`;
   },
+  debug: {
+    logThenReturn(arg, ...args) {
+      console.log(arg, ...args);
+      return arg;
+    },
+  },
 };
