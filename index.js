@@ -31,7 +31,7 @@ client.on('ready', async () => {
     async (v) => {
       const required = require(path.join(__dirname, 'commands', v));
       return [v.replace('.js', ''), typeof required === 'function' ? await required({
-        client, prefix, v, dbs, utils,
+        client, prefix, commandName: v, dbs, utils,
       }) : required];
     },
   )));
