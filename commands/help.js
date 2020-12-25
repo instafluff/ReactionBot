@@ -23,11 +23,11 @@ Send \`${extra.prefix}help [command]\` to get more information on this command`,
       });
     }
     args[0] = args[0].replace(extra.prefix, '');
-    if (!extra.commands[args[0]]) return msg.reply(`Command \`${args[0]}\` not found`);
+    if (!commands[args[0]]) return msg.reply(`Command \`${args[0]}\` not found`);
     return msg.channel.send({
       embeds: [{
         title: `${extra.prefix}${args[0]}`,
-        description: extra.commands[args[0]].description,
+        description: commands[args[0]].description,
         color: extra.utils.hslToDec(Math.floor(Math.random() * 360), 82, 60),
         timestamp: Date.now(),
         footer: {
@@ -36,11 +36,11 @@ Send \`${extra.prefix}help [command]\` to get more information on this command`,
         fields: [
           {
             name: 'How to use',
-            value: extra.commands[args[0]].helpMsg,
+            value: commands[args[0]].helpMsg,
           },
           {
             name: 'Permissions required',
-            value: `\`\`\`\n${extra.commands[args[0]].permissions.join('\n')}\n\`\`\``,
+            value: `\`\`\`\n${commands[args[0]].permissions.length === 0 ? 'none' : commands[args[0]].permissions.join('\n')}\n\`\`\``,
           },
         ],
       }],
