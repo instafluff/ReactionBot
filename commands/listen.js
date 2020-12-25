@@ -1,4 +1,5 @@
 module.exports = async (extra) => {
+  // Put messages in cache
   await Promise.all(Object.entries(extra.dbs.db.value).map(async ([i, v]) => {
     const guild = await extra.client.guilds.fetch(i);
     await Promise.all(Object.entries(v).map(async ([i1, v1]) => {
@@ -8,8 +9,8 @@ module.exports = async (extra) => {
       }));
     }));
   }));
+  // Listen for reactions
   extra.client.on('messageReactionAdd', async (reaction, user) => {
-    // console.log(roleId, reaction, user);
     const roleId = extra.dbs.db.value[reaction.message.guild.id]?.
       [reaction.message.channel.id]?.
       [reaction.message.id]?.
@@ -43,42 +44,13 @@ module.exports = async (extra) => {
       }
     }
   });
-  extra.client.on('messageReactionRemoveAll', (message) => {
-    const roleIds = extra.dbs.db.value[message.guild.id]?.
-      [message.channel.id]?.
-      [message.id] || '';
-    if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-      extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
-    }
-  });
-  extra.client.on('messageDelete', (message) => {
-    const roleIds = extra.dbs.db.value[message.guild.id]?.
-      [message.channel.id]?.
-      [message.id] || '';
-    if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-      extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
-    }
-  });
-  extra.client.on('messageDeleteBulk', (messages) => {
-    messages.mapValues((message) => {
-      const roleIds = extra.dbs.db.value[message.guild.id]?.
-        [message.channel.id]?.
-        [message.id] || '';
-      if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-        extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
-      }
-    });
-  });
   return {
     description: 'Add a reaction role listener to a message',
     helpMsg: `Copy the link of the message you want to listen to, then send \`${extra.prefix}${extra.commandName} [Paste link here] [Emoji to listen for] [Mention of the role to give]\`
 
-You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]\``,
+You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]\` and \`[Role ID]\` instead of \`[Mention of the role to give]\``,
     fn: async (argsParams, msg) => {
       const args = argsParams;
-      if (args[0] === 'help') {
-        return msg.reply();
-      }
       if (args.length < 3) return msg.reply(`An argument seem to be lacking. Need help? Type \`${extra.prefix}help ${extra.commandName}\``);
       if (args[0].length !== 18) {
         let url;

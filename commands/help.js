@@ -40,7 +40,7 @@ Send \`${extra.prefix}help [command]\` to get more information on this command`,
           },
           {
             name: 'Permissions required',
-            value: `\`\`\`\n${commands[args[0]].permissions.length === 0 ? 'none' : commands[args[0]].permissions.join('\n')}\n\`\`\``,
+            value: `\`\`\`\n${commands[args[0]].permissions.length === 0 ? '__None__' : commands[args[0]].permissions.join('\n')}\n\`\`\``,
           },
         ],
       }],
