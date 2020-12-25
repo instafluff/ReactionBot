@@ -36,7 +36,7 @@ module.exports = async (extra) => {
   });
   return {
     description: 'Add a reaction role listener to a message',
-    helpMsg: `Copy the link of the message you want to listen to, then send \`${extra.prefix}${extra.commandName} [Paste link here] [Emoji to listen for] [Mention of the role to give]\`
+    helpMsg: `Copy the link of the message you want to remove the listener from, then send \`${extra.prefix}${extra.commandName} [Paste link here] [Emoji to listen for]\`
 
 You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]\``,
     fn: async (argsParams, msg) => {
@@ -70,6 +70,7 @@ You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]
       if (!extra.dbs.db.value[msg.guild.id]?.[args[0]]?.[args[1]]?.[args[2]]) return msg.reply(`There is no listener on this message or on this emoji. Please run ${extra.prefix}list to get all listeners.`);
       extra.dbs.db.value[msg.guild.id][args[0]][args[1]][args[2]] = {};
       extra.dbs.db.value = extra.utils.lookFullyForEmpty(extra.dbs.db.value);
+      await (await msg.guild.channels.resolve(args[0]).messages.fetch(args[1])).react(args[2]);
       return msg.reply(`Removed reaction role at message https://discordapp.com/channels/${msg.guild.id}/${args[0]}/${args[1]} with emoji ${args[2]}`);
     },
     permissions: ['MANAGE_ROLES'],
