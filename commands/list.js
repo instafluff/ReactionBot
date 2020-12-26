@@ -1,3 +1,4 @@
+// https://cdn.imm.codes/webint.html#
 module.exports = (extra) => ({
   description: 'Lists all listeners in this server',
   helpMsg: `Send ${extra.prefix}${extra.commandName} to get all the listeners`,
@@ -5,10 +6,10 @@ module.exports = (extra) => ({
     extra.dbs.db.value = extra.utils.lookFullyForEmpty(extra.dbs.db.value);
     const description = Object.entries(extra.dbs.db.value[msg.guild.id] ?? {})
       .map(([i, v]) => (`__**Channel: ${msg.guild.channels.resolve(i).toString()}**__\n${
-        Object.entries(v).map(([i1, v1]) => (`Message: [[See message]](https://discordapp.com/channels/${msg.guild.id}/${i}/${i1})\n${
+        Object.entries(v).map(([i1, v1]) => (`Message: [[See message]](https://discordapp.com/channels/${msg.guild.id}/${i}/${i1}) [[Remove]](https://cdn.imm.codes/webint.html#${require('btoa')(`${extra.prefix}remove ${i} ${i1}`)})\n${
           Object.entries(v1).map(([i2, v2]) => (`${i2} => ${
             msg.guild.roles.cache.find((v3) => v3.id === v2).toString()
-          }`)).join('\n')
+          } [[Remove]](https://cdn.imm.codes/webint.html#${require('btoa')(`${extra.prefix}remove ${i} ${i1} ${i2}`)})`)).join('\n')
         }`)).join('\n\n')
       }`)).join('\n\n');
     msg.channel.send({

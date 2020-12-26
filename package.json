@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "btoa": "^1.2.1",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "informa-db.js": "^1.0.11"

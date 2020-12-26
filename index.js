@@ -1,14 +1,16 @@
+// Requirements
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-
 const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 const { LocaleDb } = require('informa-db.js');
-
-const client = new Discord.Client();
-const prefix = 'r!';
 const utils = require('./utils.js');
 
+// Discord part
+const client = new Discord.Client();
+const prefix = 'r!';
+
+// Setting up the DBs
 const dbs = {
   db: new LocaleDb({ path: 'db.json' }),
 };
@@ -22,7 +24,7 @@ client.on('ready', async () => {
     async (v) => {
       const required = require(path.join(__dirname, 'commands', v));
       return [v.replace('.js', ''), typeof required === 'function' ? await required({
-        client, prefix, commandName: v.replace('.js', ''), dbs, utils,
+        client, prefix, commandName: v.replace('.js', ''), dbs, utils, commands,
       }) : required];
     },
   )));
