@@ -17,8 +17,6 @@ module.exports = async (extra) => {
       [reaction.emoji.toString()];
     if (
       roleId
-      && !(await reaction.message.guild.members.fetch(user.id)).roles.cache
-        .find((v) => v.id === roleId)
     ) {
       try {
         (await reaction.message.guild.members.fetch(user.id)).roles.add(roleId);
@@ -34,8 +32,6 @@ module.exports = async (extra) => {
       [reaction.emoji.toString()];
     if (
       roleId
-      && (await reaction.message.guild.members.fetch(user.id)).roles.cache
-        .find((v) => v.id === roleId)
     ) {
       try {
         (await reaction.message.guild.members.fetch(user.id)).roles.remove(roleId);
