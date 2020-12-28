@@ -3,7 +3,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
-const { LocaleDb } = require('informa-db.js');
+const { Db, DbUtils } = require('informa-db.js');
 const utils = require('./utils.js');
 
 // Discord part
@@ -12,10 +12,10 @@ const prefix = 'r!';
 
 // Setting up the DBs
 const dbs = {
-  db: new LocaleDb({ path: 'db.json' }),
+  db: new Db('db.json'),
 };
 
-dbs.db.value = utils.lookFullyForEmpty(dbs.db.value);
+DbUtils.setAllTo(dbs.db, utils.lookFullyForEmpty(dbs.db));
 
 let commands;
 
@@ -24,7 +24,7 @@ client.on('ready', async () => {
     async (v) => {
       const required = require(path.join(__dirname, 'commands', v));
       return [v.replace('.js', ''), typeof required === 'function' ? await required({
-        client, prefix, commandName: v.replace('.js', ''), dbs, utils, commands,
+        client, prefix, commandName: v.replace('.js', ''), dbs, utils, commands, DbUtils,
       }) : required];
     },
   )));
@@ -60,7 +60,7 @@ client.on('message', async (msg) => {
       && ((command.permissions || []).includes('BOT_OWNER') === (msg.author.id === (await client.fetchApplication()).owner.id) || (await client.fetchApplication()).owner.id)
     ) {
       return command.fn(args, msg, {
-        client, prefix, commandName, commands, dbs, utils,
+        client, prefix, commandName, commands, dbs, utils, DbUtils,
       });
     }
     return msg.reply(`Lacking permissions: \`\`\`\n${command.permissions.filter((v) => !msg.member.hasPermission(v, {

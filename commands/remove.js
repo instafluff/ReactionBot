@@ -1,5 +1,5 @@
 module.exports = async (extra) => {
-  await Promise.all(Object.entries(extra.dbs.db.value).map(async ([i, v]) => {
+  await Promise.all(Object.entries(extra.dbs.db).map(async ([i, v]) => {
     const guild = await extra.client.guilds.fetch(i);
     await Promise.all(Object.entries(v).map(async ([i1, v1]) => {
       const channel = guild.channels.resolve(i1);
@@ -9,28 +9,28 @@ module.exports = async (extra) => {
     }));
   }));
   extra.client.on('messageReactionRemoveAll', (message) => {
-    const roleIds = extra.dbs.db.value[message.guild.id]?.
+    const roleIds = extra.dbs.db[message.guild.id]?.
       [message.channel.id]?.
       [message.id] || '';
     if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-      extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
+      extra.dbs.db[message.guild.id][message.channel.id][message.id] = {};
     }
   });
   extra.client.on('messageDelete', (message) => {
-    const roleIds = extra.dbs.db.value[message.guild.id]?.
+    const roleIds = extra.dbs.db[message.guild.id]?.
       [message.channel.id]?.
       [message.id] || '';
     if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-      extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
+      extra.dbs.db[message.guild.id][message.channel.id][message.id] = {};
     }
   });
   extra.client.on('messageDeleteBulk', (messages) => {
     messages.mapValues((message) => {
-      const roleIds = extra.dbs.db.value[message.guild.id]?.
+      const roleIds = extra.dbs.db[message.guild.id]?.
         [message.channel.id]?.
         [message.id] || '';
       if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-        extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
+        extra.dbs.db[message.guild.id][message.channel.id][message.id] = {};
       }
     });
   });
@@ -68,9 +68,9 @@ You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]
         ) {
           return msg.reply(`Your input is not correctly formatted. Please reformat your input. Need help? Type \`${extra.prefix}help ${extra.commandName}\``);
         }
-        if (!extra.dbs.db.value[msg.guild.id]?.[args[0]]?.[args[1]]) return msg.reply('There is no listener on this message.');
-        extra.dbs.db.value[msg.guild.id][args[0]][args[1]] = {};
-        extra.dbs.db.value = extra.utils.lookFullyForEmpty(extra.dbs.db.value);
+        if (!extra.dbs.db[msg.guild.id]?.[args[0]]?.[args[1]]) return msg.reply('There is no listener on this message.');
+        extra.dbs.db[msg.guild.id][args[0]][args[1]] = {};
+        extra.DbUtils.setAllTo(extra.dbs.db, extra.utils.lookFullyForEmpty(extra.dbs.db));
         try {
           await Promise.all((await msg.guild.channels.resolve(args[0]).messages.fetch(args[1]))
             .reactions.cache.filter((v) => v.me).map(async (v) => await v.remove()));
@@ -105,9 +105,9 @@ You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]
       ) {
         return msg.reply(`Your input is not correctly formatted. Please reformat your input. Need help? Type \`${extra.prefix}help ${extra.commandName}\``);
       }
-      if (!extra.dbs.db.value[msg.guild.id]?.[args[0]]?.[args[1]]?.[args[2]]) return msg.reply(`There is no listener on this message or on this emoji. Please run ${extra.prefix}list to get all listeners.`);
-      extra.dbs.db.value[msg.guild.id][args[0]][args[1]][args[2]] = {};
-      extra.dbs.db.value = extra.utils.lookFullyForEmpty(extra.dbs.db.value);
+      if (!extra.dbs.db[msg.guild.id]?.[args[0]]?.[args[1]]?.[args[2]]) return msg.reply(`There is no listener on this message or on this emoji. Please run ${extra.prefix}list to get all listeners.`);
+      extra.dbs.db[msg.guild.id][args[0]][args[1]][args[2]] = {};
+      extra.DbUtils.setAllTo(extra.dbs.db, extra.utils.lookFullyForEmpty(extra.dbs.db));
       try {
         await (await msg.guild.channels.resolve(args[0]).messages.fetch(args[1]))
           .reactions.cache.find((v) => v.me && v.emoji.toString() === args[2]).remove();

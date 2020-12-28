@@ -1,6 +1,6 @@
 module.exports = async (extra) => {
   // Put messages in cache
-  await Promise.all(Object.entries(extra.dbs.db.value).map(async ([i, v]) => {
+  await Promise.all(Object.entries(extra.dbs.db).map(async ([i, v]) => {
     const guild = await extra.client.guilds.fetch(i);
     await Promise.all(Object.entries(v).map(async ([i1, v1]) => {
       const channel = guild.channels.resolve(i1);
@@ -11,7 +11,7 @@ module.exports = async (extra) => {
   }));
   // Listen for reactions
   extra.client.on('messageReactionAdd', async (reaction, user) => {
-    const roleId = extra.dbs.db.value[reaction.message.guild.id]?.
+    const roleId = extra.dbs.db[reaction.message.guild.id]?.
       [reaction.message.channel.id]?.
       [reaction.message.id]?.
       [reaction.emoji.toString()];
@@ -28,7 +28,7 @@ module.exports = async (extra) => {
     }
   });
   extra.client.on('messageReactionRemove', async (reaction, user) => {
-    const roleId = extra.dbs.db.value[reaction.message.guild.id]?.
+    const roleId = extra.dbs.db[reaction.message.guild.id]?.
       [reaction.message.channel.id]?.
       [reaction.message.id]?.
       [reaction.emoji.toString()];
@@ -96,13 +96,16 @@ You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]
         const owner = (await extra.client.fetchApplication()).owner;
         return msg.reply(`Unlucky you, there was an error. However, you can run that command again to see if it works on a second and third try. If it doesn't work after 3 tries, please contact \`${owner.username}#${owner.discriminator}\`${/[^\u0020-\u00ff]/.test(owner.username) ? ' (Please copy paste, contains special characters)' : ''}`);
       }
-      (
-        (
-          (
-            extra.dbs.db.value[msg.guild.id] ??= {}
-          )[args[0]] ??= {}
-        )[args[1]] ??= {}
-      )[args[2]] = args[3];
+      if (!extra.dbs.db[msg.guild.id]) {
+        extra.dbs.db[msg.guild.id] = {};
+      }
+      if (!extra.dbs.db[msg.guild.id][args[0]]) {
+        extra.dbs.db[msg.guild.id][args[0]] = {};
+      }
+      if (!extra.dbs.db[msg.guild.id][args[0]][args[1]]) {
+        extra.dbs.db[msg.guild.id][args[0]][args[1]] = {};
+      }
+      extra.dbs.db[msg.guild.id][args[0]][args[1]][args[2]] = args[3];
       return msg.reply(`Added reaction role at message https://discordapp.com/channels/${msg.guild.id}/${args[0]}/${args[1]} with emoji ${args[2]} to \`${msg.mentions.roles.first().name}\``);
     },
     permissions: ['MANAGE_ROLES'],

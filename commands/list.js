@@ -3,8 +3,8 @@ module.exports = (extra) => ({
   description: 'Lists all listeners in this server',
   helpMsg: `Send ${extra.prefix}${extra.commandName} to get all the listeners`,
   fn: async (_, msg) => {
-    extra.dbs.db.value = extra.utils.lookFullyForEmpty(extra.dbs.db.value);
-    const description = Object.entries(extra.dbs.db.value[msg.guild.id] ?? {})
+    extra.DbUtils.setAllTo(extra.dbs.db, extra.utils.lookFullyForEmpty(extra.dbs.db));
+    const description = Object.entries(extra.dbs.db[msg.guild.id] ?? {})
       .map(([i, v]) => (`__**Channel: ${msg.guild.channels.resolve(i).toString()}**__\n${
         Object.entries(v).map(([i1, v1]) => (`Message: [[See message]](https://discordapp.com/channels/${msg.guild.id}/${i}/${i1}) [[Remove]](https://cdn.imm.codes/webint.html#${require('btoa')(`${extra.prefix}remove ${i} ${i1}`)})\n${
           Object.entries(v1).map(([i2, v2]) => (`${i2} => ${
