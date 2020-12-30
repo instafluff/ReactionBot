@@ -56,7 +56,7 @@ client.on('message', async (msg) => {
         checkOwner: true,
         checkAdmin: true,
       }) : true))
-      && ((command.permissions || []).includes('SERVER_OWNER') === (msg.author.id === msg.guild.owner.id) || (msg.author.id === msg.guild.owner.id))
+      && ((command.permissions || []).includes('SERVER_OWNER') === (msg.author.id === msg.guild.ownerID) || (msg.author.id === msg.guild.ownerID))
       && ((command.permissions || []).includes('BOT_OWNER') === (msg.author.id === (await client.fetchApplication()).owner.id) || (await client.fetchApplication()).owner.id)
     ) {
       return command.fn(args, msg, {
