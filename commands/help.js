@@ -16,7 +16,7 @@ Send \`${extra.prefix}help [command]\` to get more information on this command`,
             text: 'ReactionRole - by Informa',
           },
           fields: Object.entries(commands).map(([i, v]) => ({
-            name: i,
+            name: `\`${extra.prefix}${i}\``,
             value: v.description,
           })),
         },
