@@ -25,7 +25,7 @@ Send \`${extra.prefix}help [command]\` to get more information on this command`,
     args[0] = args[0].replace(extra.prefix, '');
     if (!commands[args[0]]) return msg.reply(`Command \`${args[0]}\` not found`);
     return msg.channel.send({
-      embeds: [{
+      embed: {
         title: `${extra.prefix}${args[0]}`,
         description: commands[args[0]].description,
         color: extra.utils.hslToDec(Math.floor(Math.random() * 360), 82, 60),
@@ -43,7 +43,7 @@ Send \`${extra.prefix}help [command]\` to get more information on this command`,
             value: `\`\`\`\n${(commands[args[0]].permissions ?? []).length === 0 ? '__None__' : commands[args[0]].permissions.join('\n')}\n\`\`\``,
           },
         ],
-      }],
+      },
     });
   },
 });
