@@ -1,17 +1,21 @@
-require('dotenv').config();
-
+// Requirements
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const Discord = require('discord.js');
 const path = require('path');
 const fs = require('fs');
-const { LocaleDb } = require('informa-db.js');
-
-const client = new Discord.Client();
-const prefix = 'r!';
+const { Db, DbUtils } = require('informa-db.js');
 const utils = require('./utils.js');
 
+// Discord part
+const client = new Discord.Client();
+const prefix = 'r!';
+
+// Setting up the DBs
 const dbs = {
-  db: new LocaleDb({ path: 'db.json' }),
+  db: new Db('db.json'),
 };
+
+DbUtils.setAllTo(dbs.db, utils.lookFullyForEmpty(dbs.db));
 
 let commands;
 
@@ -20,7 +24,7 @@ client.on('ready', async () => {
     async (v) => {
       const required = require(path.join(__dirname, 'commands', v));
       return [v.replace('.js', ''), typeof required === 'function' ? await required({
-        client, prefix, v, dbs, utils,
+        client, prefix, commandName: v.replace('.js', ''), dbs, utils, commands, DbUtils,
       }) : required];
     },
   )));
@@ -52,11 +56,11 @@ client.on('message', async (msg) => {
         checkOwner: true,
         checkAdmin: true,
       }) : true))
-      && ((command.permissions || []).includes('SERVER_OWNER') === (msg.author.id === msg.guild.owner.id) || (msg.author.id === msg.guild.owner.id))
+      && ((command.permissions || []).includes('SERVER_OWNER') === (msg.author.id === msg.guild.ownerID) || (msg.author.id === msg.guild.ownerID))
       && ((command.permissions || []).includes('BOT_OWNER') === (msg.author.id === (await client.fetchApplication()).owner.id) || (await client.fetchApplication()).owner.id)
     ) {
       return command.fn(args, msg, {
-        client, prefix, commandName, commands, dbs, utils,
+        client, prefix, commandName, commands, dbs, utils, DbUtils,
       });
     }
     return msg.reply(`Lacking permissions: \`\`\`\n${command.permissions.filter((v) => !msg.member.hasPermission(v, {
@@ -67,4 +71,4 @@ client.on('message', async (msg) => {
   return msg.reply(`\`${prefix}${commandName}\` is not a recognised command`);
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.DISCORD_TOKEN);

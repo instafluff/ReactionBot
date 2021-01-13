@@ -1,5 +1,6 @@
 module.exports = async (extra) => {
-  await Promise.all(Object.entries(extra.dbs.db.value).map(async ([i, v]) => {
+  // Put messages in cache
+  await Promise.all(Object.entries(extra.dbs.db).map(async ([i, v]) => {
     const guild = await extra.client.guilds.fetch(i);
     await Promise.all(Object.entries(v).map(async ([i1, v1]) => {
       const channel = guild.channels.resolve(i1);
@@ -8,16 +9,14 @@ module.exports = async (extra) => {
       }));
     }));
   }));
+  // Listen for reactions
   extra.client.on('messageReactionAdd', async (reaction, user) => {
-    // console.log(roleId, reaction, user);
-    const roleId = extra.dbs.db.value[reaction.message.guild.id]?.
+    const roleId = extra.dbs.db[reaction.message.guild.id]?.
       [reaction.message.channel.id]?.
       [reaction.message.id]?.
       [reaction.emoji.toString()];
     if (
       roleId
-      && !(await reaction.message.guild.members.fetch(user.id)).roles.cache
-        .find((v) => v.id === roleId)
     ) {
       try {
         (await reaction.message.guild.members.fetch(user.id)).roles.add(roleId);
@@ -27,14 +26,12 @@ module.exports = async (extra) => {
     }
   });
   extra.client.on('messageReactionRemove', async (reaction, user) => {
-    const roleId = extra.dbs.db.value[reaction.message.guild.id]?.
+    const roleId = extra.dbs.db[reaction.message.guild.id]?.
       [reaction.message.channel.id]?.
       [reaction.message.id]?.
       [reaction.emoji.toString()];
     if (
       roleId
-      && (await reaction.message.guild.members.fetch(user.id)).roles.cache
-        .find((v) => v.id === roleId)
     ) {
       try {
         (await reaction.message.guild.members.fetch(user.id)).roles.remove(roleId);
@@ -43,42 +40,13 @@ module.exports = async (extra) => {
       }
     }
   });
-  extra.client.on('messageReactionRemoveAll', (message) => {
-    const roleIds = extra.dbs.db.value[message.guild.id]?.
-      [message.channel.id]?.
-      [message.id] || '';
-    if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-      extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
-    }
-  });
-  extra.client.on('messageDelete', (message) => {
-    const roleIds = extra.dbs.db.value[message.guild.id]?.
-      [message.channel.id]?.
-      [message.id] || '';
-    if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-      extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
-    }
-  });
-  extra.client.on('messageDeleteBulk', (messages) => {
-    messages.mapValues((message) => {
-      const roleIds = extra.dbs.db.value[message.guild.id]?.
-        [message.channel.id]?.
-        [message.id] || '';
-      if (roleIds !== '' && Object.keys(roleIds).length !== 0) {
-        extra.dbs.db.value[message.guild.id][message.channel.id][message.id] = {};
-      }
-    });
-  });
   return {
     description: 'Add a reaction role listener to a message',
     helpMsg: `Copy the link of the message you want to listen to, then send \`${extra.prefix}${extra.commandName} [Paste link here] [Emoji to listen for] [Mention of the role to give]\`
 
-You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]\``,
+You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]\` and \`[Role ID]\` instead of \`[Mention of the role to give]\``,
     fn: async (argsParams, msg) => {
       const args = argsParams;
-      if (args[0] === 'help') {
-        return msg.reply();
-      }
       if (args.length < 3) return msg.reply(`An argument seem to be lacking. Need help? Type \`${extra.prefix}help ${extra.commandName}\``);
       if (args[0].length !== 18) {
         let url;
@@ -124,13 +92,16 @@ You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]
         const owner = (await extra.client.fetchApplication()).owner;
         return msg.reply(`Unlucky you, there was an error. However, you can run that command again to see if it works on a second and third try. If it doesn't work after 3 tries, please contact \`${owner.username}#${owner.discriminator}\`${/[^\u0020-\u00ff]/.test(owner.username) ? ' (Please copy paste, contains special characters)' : ''}`);
       }
-      (
-        (
-          (
-            extra.dbs.db.value[msg.guild.id] ??= {}
-          )[args[0]] ??= {}
-        )[args[1]] ??= {}
-      )[args[2]] = args[3];
+      if (!extra.dbs.db[msg.guild.id]) {
+        extra.dbs.db[msg.guild.id] = {};
+      }
+      if (!extra.dbs.db[msg.guild.id][args[0]]) {
+        extra.dbs.db[msg.guild.id][args[0]] = {};
+      }
+      if (!extra.dbs.db[msg.guild.id][args[0]][args[1]]) {
+        extra.dbs.db[msg.guild.id][args[0]][args[1]] = {};
+      }
+      extra.dbs.db[msg.guild.id][args[0]][args[1]][args[2]] = args[3];
       return msg.reply(`Added reaction role at message https://discordapp.com/channels/${msg.guild.id}/${args[0]}/${args[1]} with emoji ${args[2]} to \`${msg.mentions.roles.first().name}\``);
     },
     permissions: ['MANAGE_ROLES'],
