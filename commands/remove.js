@@ -35,7 +35,7 @@ module.exports = async (extra) => {
     });
   });
   return {
-    description: 'Add a reaction role listener to a message',
+    description: 'Remove a reaction role listener of a message',
     helpMsg: `Copy the link of the message you want to remove the listener from, then send \`${extra.prefix}${extra.commandName} [Paste link here] [Emoji to listen for]\`
 
 You can also use \`[ID of channel] [ID of role]\` instead of \`[Paste link here]\``,
